@@ -1,0 +1,16 @@
+#!/bin/bash
+
+FILE=$1
+MESSAGE=$(cat $FILE)
+
+# Extract ticket number from branch name or set '[NO-REF]' if not found
+TICKET=[$(git rev-parse --abbrev-ref HEAD | grep -Eo '^(\w+/)?(\w+[-_])?[0-9]+' | grep -Eo '(\w+[-])?[0-9]+' | tr "[:lower:]" "[:upper:]")]
+[[ $TICKET == "[]" ]] && TICKET="[NO-REF]"
+
+# Only prepend the ticket number to the commit message if commit message starts with a type followed by a colon
+if [[ "$MESSAGE" =~ ^([a-zA-Z0-9_-]+):.*$ ]]; then
+    # Prepend ticket number to commit message if not already starting with TICKET or [NO-REF]
+    [[ "$MESSAGE" != "$TICKET"* ]] && [[ "$MESSAGE" != "[NO-REF]"* ]] && echo "$TICKET $MESSAGE" > $FILE
+fi
+
+exit 0;

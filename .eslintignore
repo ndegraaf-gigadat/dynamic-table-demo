@@ -1,0 +1,12 @@
+.DS_Store/*
+node_modules/*
+dist/*
+build/*
+coverage/*
+logs/*
+package/*
+.svelte-kit/*
+.eslintcache
+.env
+.env.*
+package-lock.json

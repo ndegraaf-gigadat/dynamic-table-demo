@@ -1,0 +1,9 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "parserPreset": {
+    "parserOpts": {
+      "headerPattern": "^\\[(NO-REF|[A-Z]+-\\d+)] (\\w+): (.*)$",
+      "headerCorrespondence": ["ticket", "type", "subject"]
+    }
+  }
+}

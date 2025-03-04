@@ -1,0 +1,14 @@
+name: Check the pull request
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  require-checklist:
+    name: Check the PR checklist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mheap/require-checklist-action@v2
+        with:
+          requireChecklist: false # If this is true and there are no checklists detected, the action will fail

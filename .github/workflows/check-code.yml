@@ -1,0 +1,61 @@
+name: Check/lint the code
+
+on: push
+
+# https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+permissions:
+  checks: write
+  contents: write
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.12.2
+
+      - name: Set the Node.js environment to CI mode
+        run: echo "NODE_ENV=ci" >> "$GITHUB_ENV"
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: SvelteKit sync for environment variables
+        run: npx svelte-kit sync
+        env:
+          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+          PUBLIC_S3: ${{ vars.PUBLIC_S3 }}
+
+      - name: Perform the checks
+        uses: wearerequired/lint-action@v2
+        with:
+          eslint: true
+          eslint_extensions: js,ts,svelte
+          tsc: true
+
+  run-tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.12.2
+
+      - name: Set the Node.js environment to CI mode
+        run: echo "NODE_ENV=ci" >> "$GITHUB_ENV"
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Execute unit tests
+        run: npx vitest run

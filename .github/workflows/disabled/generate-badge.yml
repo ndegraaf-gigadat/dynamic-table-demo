@@ -1,0 +1,47 @@
+name: Generate dynamic badge for code coverage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  coverage-badge:
+    name: Create coverage badge
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.12.2
+
+      - name: Set the Node.js environment to CI mode
+        run: echo "NODE_ENV=ci" >> "$GITHUB_ENV"
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run tests and generate coverage report
+        run: vitest run --coverage.enabled --coverage.reporter=json-summary
+
+      - name: Get JSON property
+        id: get_json_property
+        uses: notiz-dev/github-action-json-property@release
+        with:
+          path: "coverage/coverage-summary.json"
+          prop_path: "total.lines.pct"
+
+      - name: Write the coverage badge data into gist destination
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: ${{ secrets.GIST_ID }}
+          filename: ${{ secrets.GIST_FILENAME }}
+          label: coverage
+          message: ${{steps.get_json_property.outputs.prop}}
+          valColorRange: ${{steps.get_json_property.outputs.prop}}
+          minColorRange: 50
+          maxColorRange: 90
